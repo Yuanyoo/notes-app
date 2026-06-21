@@ -1,0 +1,24 @@
+---
+description: Keep README.md in sync with every meaningful change
+alwaysApply: true
+---
+
+# README Sync
+
+After every task that changes behaviour, APIs, setup steps, or project structure, update `README.md` to reflect the new state.
+
+## What must stay current
+
+- **Local dev** — commands, ports, env vars, prerequisites
+- **Auth** — dev-mode vs Cognito flow, any new login steps
+- **API / endpoints** — new routes or changed behaviour
+- **Project structure** — new files, removed files, renamed dirs
+- **Deploy** — any change to `scripts/deploy.sh` or Terraform
+- **Cost table** — if resources are added or removed
+
+## Rules
+
+- Edit the relevant section in place — do NOT append a changelog.
+- Keep the file under 400 lines.
+- If a section no longer applies, remove it.
+- Do NOT add a "Changed in this session" block.

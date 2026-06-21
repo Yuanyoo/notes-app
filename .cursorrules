@@ -1,0 +1,30 @@
+# Notes TurboAI — Cursor Rules
+
+## Commit convention
+- Use Conventional Commits: `type(scope): message`
+- Scope must match: `IZ-\d+`, `infra`, or a feature slug
+
+## Code style
+- DRY: never duplicate business logic or UI patterns — extract to a function/component
+- No obvious comments (avoid "# increment counter", "// return result")
+- Python: ruff-formatted, typed (mypy strict), no bare except
+- TypeScript: strict mode, no `any`, prefer `unknown` + narrowing
+
+## Backend (`backend/`)
+- All app code lives under `backend/apps/`
+- Authentication: `CognitoJWTAuthentication` — never use Django sessions or SimpleJWT
+- Models use `cognito_sub` (UUID) as the per-user key, never a FK to auth.User for notes/categories
+- API responses are JSON; errors follow `{ "detail": "..." }` DRF convention
+- Always run `ruff check . --fix` and `mypy .` before declaring done
+
+## Frontend (`frontend/`)
+- App Router only — no Pages Router patterns
+- All state-changing API calls go through `/api/auth/*` or `/api/*` Next.js Route Handlers (never direct to Django)
+- No secrets or tokens in client-side code or `localStorage`
+- Components in `src/components/`, hooks in `src/hooks/`, lib in `src/lib/`
+- Always run `npm run typecheck` and `npm run lint -- --quiet` before declaring done
+
+## Infra (`infra/`)
+- Terraform modules in `infra/modules/`
+- Never hardcode secrets — use SSM Parameter Store or Secrets Manager
+- Tag all resources with `Project=notes`, `Env=var.env`
