@@ -18,15 +18,38 @@ set -euo pipefail
 : "${AWS_REGION:?Set AWS_REGION}"
 : "${ENV:=dev}"
 
-# Propagate AWS_PROFILE to Terraform and all AWS CLI calls
+# ---------------------------------------------------------------------------
+# aws() wrapper — every AWS CLI call uses the explicit --profile flag so
+# there is no ambiguity about which account is targeted, regardless of shell
+# environment inheritance.
+# ---------------------------------------------------------------------------
+aws() {
+  if [[ -n "${AWS_PROFILE:-}" ]]; then
+    command aws --profile "${AWS_PROFILE}" "$@"
+  else
+    command aws "$@"
+  fi
+}
+export -f aws
+
+# Propagate AWS_PROFILE to Terraform (its AWS provider reads this env var)
 if [[ -n "${AWS_PROFILE:-}" ]]; then
   export AWS_PROFILE
   echo "==> Using AWS profile: ${AWS_PROFILE}"
+else
+  echo "==> Using default AWS profile"
 fi
 
-# Resolve account ID automatically if not set
-AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-$(aws sts get-caller-identity --query Account --output text)}"
+# Resolve account ID and print full identity so you can confirm the right account
+CALLER_IDENTITY="$(aws sts get-caller-identity --output json)"
+AWS_ACCOUNT_ID="$(echo "${CALLER_IDENTITY}" | python3 -c 'import sys,json; print(json.load(sys.stdin)["Account"])')"
+CALLER_ARN="$(echo "${CALLER_IDENTITY}"     | python3 -c 'import sys,json; print(json.load(sys.stdin)["Arn"])')"
 export AWS_ACCOUNT_ID
+
+echo "==> Targeting account: ${AWS_ACCOUNT_ID}  (${CALLER_ARN})"
+echo "==> Region: ${AWS_REGION}  |  Env: ${ENV}"
+echo ""
+read -r -p "Press ENTER to continue or Ctrl-C to abort..."
 
 ECR="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 TAG="$(git rev-parse --short HEAD)"

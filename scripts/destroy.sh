@@ -12,13 +12,32 @@ set -euo pipefail
 : "${AWS_REGION:?Set AWS_REGION}"
 : "${ENV:=dev}"
 
+# ---------------------------------------------------------------------------
+# aws() wrapper — every AWS CLI call uses the explicit --profile flag.
+# ---------------------------------------------------------------------------
+aws() {
+  if [[ -n "${AWS_PROFILE:-}" ]]; then
+    command aws --profile "${AWS_PROFILE}" "$@"
+  else
+    command aws "$@"
+  fi
+}
+export -f aws
+
 if [[ -n "${AWS_PROFILE:-}" ]]; then
   export AWS_PROFILE
   echo "==> Using AWS profile: ${AWS_PROFILE}"
+else
+  echo "==> Using default AWS profile"
 fi
 
-AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-$(aws sts get-caller-identity --query Account --output text)}"
+CALLER_IDENTITY="$(aws sts get-caller-identity --output json)"
+AWS_ACCOUNT_ID="$(echo "${CALLER_IDENTITY}" | python3 -c 'import sys,json; print(json.load(sys.stdin)["Account"])')"
+CALLER_ARN="$(echo "${CALLER_IDENTITY}"     | python3 -c 'import sys,json; print(json.load(sys.stdin)["Arn"])')"
 export AWS_ACCOUNT_ID
+
+echo "==> Targeting account: ${AWS_ACCOUNT_ID}  (${CALLER_ARN})"
+echo "==> Region: ${AWS_REGION}  |  Env: ${ENV}"
 
 INFRA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/infra"
 
