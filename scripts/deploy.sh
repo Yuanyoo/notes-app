@@ -59,6 +59,7 @@ echo "==> [1/6] Terraform init + first apply (provisions ECR repos, Cognito, VPC
 (
   cd "$INFRA_DIR"
   terraform init \
+    -reconfigure \
     -backend-config="bucket=notes-tfstate-${AWS_ACCOUNT_ID}" \
     -backend-config="region=${AWS_REGION}"
   terraform apply -auto-approve \

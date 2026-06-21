@@ -84,7 +84,7 @@ resource "aws_route_table_association" "private" {
 # ── Security Groups ───────────────────────────────────────────────────────────
 resource "aws_security_group" "alb" {
   name        = "${var.name}-sg-alb"
-  description = "ALB — allow HTTP from internet"
+  description = "ALB - allow HTTP from internet"
   vpc_id      = aws_vpc.main.id
 
   ingress {
@@ -104,7 +104,7 @@ resource "aws_security_group" "alb" {
 
 resource "aws_security_group" "backend" {
   name        = "${var.name}-sg-backend"
-  description = "Backend — allow 8000 from ALB"
+  description = "Backend - allow 8000 from ALB"
   vpc_id      = aws_vpc.main.id
 
   ingress {
@@ -124,7 +124,7 @@ resource "aws_security_group" "backend" {
 
 resource "aws_security_group" "frontend" {
   name        = "${var.name}-sg-frontend"
-  description = "Frontend — allow 3000 from ALB"
+  description = "Frontend - allow 3000 from ALB"
   vpc_id      = aws_vpc.main.id
 
   ingress {
@@ -144,7 +144,7 @@ resource "aws_security_group" "frontend" {
 
 resource "aws_security_group" "rds" {
   name        = "${var.name}-sg-rds"
-  description = "RDS — allow 5432 from backend"
+  description = "RDS - allow 5432 from backend"
   vpc_id      = aws_vpc.main.id
 
   ingress {

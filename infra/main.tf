@@ -13,6 +13,8 @@ terraform {
   }
 }
 
+data "aws_caller_identity" "current" {}
+
 provider "aws" {
   region = var.aws_region
 
@@ -47,7 +49,7 @@ module "auth" {
   name                = local.name
   env                 = var.env
   app_url             = "http://${module.alb.dns_name}"
-  domain_prefix       = "${var.cognito_domain_prefix}-${var.env}"
+  domain_prefix       = "${var.cognito_domain_prefix}-${var.env}-${data.aws_caller_identity.current.account_id}"
 }
 
 module "data" {

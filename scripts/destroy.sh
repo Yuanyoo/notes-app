@@ -70,6 +70,7 @@ echo "==> Running terraform destroy…"
 (
   cd "$INFRA_DIR"
   terraform init \
+    -reconfigure \
     -backend-config="bucket=notes-tfstate-${AWS_ACCOUNT_ID}" \
     -backend-config="region=${AWS_REGION}"
   terraform destroy -auto-approve \
